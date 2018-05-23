@@ -12,13 +12,21 @@ export const uri2Obj = (uri) => {
   }, {})
 }
 
+export const decodeObj = (obj) => {
+  if (!obj) return {}
+  return Object.keys(obj).reduce((acc, key) => {
+    acc[key] = decodeURIComponent(obj[key])
+    return acc
+  }, {})
+}
+
 export const timeTransfer = (timestamp) => {
-  const now = new Date()
-  const diff = (now.getTime() - timestamp * 1000) / 1000
+  if (timestamp === undefined) return ''
+  const diff = Date.now() / 1000 - Number(timestamp)
   if (diff < 0) {
     return '刚刚'
   } else if (diff < 60) {
-    return `${diff} 秒前`
+    return `${Math.floor(diff)} 秒前`
   } else if (diff < 3600) {
     return `${Math.floor(diff / 60)} 分钟前`
   } else if (diff < 24 * 3600) {

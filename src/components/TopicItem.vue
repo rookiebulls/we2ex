@@ -51,8 +51,18 @@ export default {
   },
   methods: {
     getTopicContent () {
-      console.log('click..')
-      this.$emit('on-get-topic-content', { id: this.topic.id })
+      console.log('click..', this.topic)
+      this.$emit('on-get-topic-content',
+        {
+          id: this.topic.id,
+          created: this.topic.created,
+          avatar: this.topic.member.avatar_normal,
+          username: this.topic.member.username,
+          replies: this.topic.replies,
+          node: this.topic.node.title,
+          content: this.topic.content_rendered
+        }
+      )
     }
   }
 }

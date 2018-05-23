@@ -11,7 +11,7 @@
 <script>
 import TopicItem from '@/components/TopicItem'
 import Tab from '@/components/Tab'
-import { getLatestTopics } from '@/utils/api'
+import { getHotTopics } from '@/utils/api'
 import wx from '@/utils/wx'
 import { obj2Uri } from '@/utils'
 
@@ -26,16 +26,15 @@ export default {
     Tab
   },
   mounted () {
-    this.getLatestTopics()
+    this.getHotTopics()
   },
   onPullDownRefresh () {
-    console.log('on pull down request')
-    this.getLatestTopics()
+    this.getHotTopics()
     wx.stopPullDownRefresh()
   },
   methods: {
-    async getLatestTopics () {
-      const topics = await getLatestTopics()
+    async getHotTopics () {
+      const topics = await getHotTopics()
       this.topics = topics
     },
     getTopicContent (payload) {

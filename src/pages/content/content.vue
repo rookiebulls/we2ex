@@ -3,33 +3,33 @@
     <div class="detail">
       <div class="top">
         <div class="top__first">
-          <img :src="topic.member.avatar_normal" alt="">
+          <img :src="query.avatar" alt="">
           <div class="user">
-            <div>{{ topic.member.username }}</div>
+            <div>{{ query.username }}</div>
             <div class="user__time">
               <span>创建于 {{ created }}</span>
-              <span class="reply">{{ topic.replies }} 回贴</span>
+              <span class="reply">{{ query.replies }} 回贴</span>
             </div>
           </div>
         </div>
         <div>
-          <span class="node">{{ topic.node.title }}</span>
+          <span class="node">{{ query.node}}</span>
         </div>
       </div>
-      <wxParse class-name="wx-parse" :content="topic.content_rendered" no-data="年轻人不要着急..."></wxParse>
+      <wxParse class-name="wx-parse" :content="query.content" no-data=""></wxParse>
     </div>
-    <div v-for="(reply, index) in loadedReplies" :key="index">
+    <div v-for="(reply, index) in loadedReplies" :key="reply.id">
       <reply-item :reply="reply" :index="index"></reply-item>
     </div>
-    <div class="comments" v-if="loadedReplies.length === replies.length">没有更多评论了~</div>
+    <div class="comments" v-if="replies.length && (loadedReplies.length === replies.length)">没有更多评论了~</div>
   </div>
 </template>
 
 <script>
-import { getReplies, getTopicContent } from '@/utils/api'
+import { getReplies } from '@/utils/api'
 import wxParse from 'mpvue-wxparse'
 import ReplyItem from '@/components/ReplyItem'
-import { timeTransfer } from '@/utils'
+import { timeTransfer, decodeObj } from '@/utils'
 import wx from '@/utils/wx'
 
 export default {
@@ -39,10 +39,10 @@ export default {
         member: {},
         node: {}
       },
+      query: {},
       replies: [],
       loadedReplies: [],
-      page: 1,
-      pageSize: 10
+      pageSize: 5
     }
   },
   components: {
@@ -51,12 +51,13 @@ export default {
   },
   computed: {
     created () {
-      return timeTransfer(this.topic.created)
+      return timeTransfer(this.query.created)
     }
   },
   mounted () {
     const query = this.$root.$mp.query
-    this.query = query
+    console.log(decodeObj(query))
+    this.query = decodeObj(query)
     this.getTopicDetail(query.id)
   },
   onPullDownRefresh () {
@@ -66,24 +67,30 @@ export default {
   },
   onReachBottom () {
     console.log('on reach bottom')
-    this.loadMore()
+    this.refresh()
   },
   methods: {
     async getTopicDetail (id) {
-      const topic = await getTopicContent(id)
-      this.topic = topic[0]
-
+      // const topic = await getTopicContent(id)
+      // this.topic = topic[0]
       const replies = await getReplies({ topic_id: id })
-      console.log(replies)
       this.replies = replies
       this.loadedReplies = replies.slice(0, this.pageSize)
     },
     loadMore () {
-      const nextPage = this.replies.slice(this.page * this.pageSize, (this.page + 1) * this.pageSize)
+      const loadedLen = this.loadedReplies.length
+      if (loadedLen === this.replies.length) return
+      const nextPage = this.replies.slice(loadedLen, loadedLen + this.pageSize)
       for (const item of nextPage) {
         this.loadedReplies.push(item)
       }
-      this.page += 1
+    },
+    refresh () {
+      wx.showNavigationBarLoading()
+      this.loadMore()
+      this.$nextTick(() => {
+        wx.hideNavigationBarLoading()
+      })
     }
   }
 }
