@@ -51,7 +51,6 @@ export default {
   },
   methods: {
     getTopicContent () {
-      console.log('click..', this.topic)
       this.$emit('on-get-topic-content',
         {
           id: this.topic.id,

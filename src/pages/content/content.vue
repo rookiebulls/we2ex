@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { getReplies } from '@/utils/api'
+import { getReplies, getTopicContent } from '@/utils/api'
 import wxParse from 'mpvue-wxparse'
 import ReplyItem from '@/components/ReplyItem'
 import { timeTransfer, decodeObj } from '@/utils'
@@ -56,9 +56,8 @@ export default {
   },
   mounted () {
     const query = this.$root.$mp.query
-    console.log(decodeObj(query))
     this.query = decodeObj(query)
-    this.getTopicDetail(query.id)
+    this.getReplies(query.id)
   },
   onPullDownRefresh () {
     console.log('on pull down request')
@@ -71,8 +70,13 @@ export default {
   },
   methods: {
     async getTopicDetail (id) {
-      // const topic = await getTopicContent(id)
-      // this.topic = topic[0]
+      const topic = await getTopicContent(id)
+      this.topic = topic[0]
+      const replies = await getReplies({ topic_id: id })
+      this.replies = replies
+      this.loadedReplies = replies.slice(0, this.pageSize)
+    },
+    async getReplies (id) {
       const replies = await getReplies({ topic_id: id })
       this.replies = replies
       this.loadedReplies = replies.slice(0, this.pageSize)
