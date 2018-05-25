@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="content">
     <div class="detail">
       <div class="top">
         <div class="top__first">
@@ -8,7 +8,6 @@
             <div>{{ query.username }}</div>
             <div class="user__time">
               <span>创建于 {{ created }}</span>
-              <span class="reply">{{ query.replies }} 回贴</span>
             </div>
           </div>
         </div>
@@ -16,7 +15,9 @@
           <span class="node">{{ query.node}}</span>
         </div>
       </div>
+      <p class="title">{{ query.title }}</p>
       <wxParse class-name="wx-parse" :content="query.content" no-data=""></wxParse>
+      <div class="reply">{{ query.replies }} 回贴 | 直到 {{ lastTouched }}</div>
     </div>
     <div v-for="(reply, index) in loadedReplies" :key="reply.id">
       <reply-item :reply="reply" :index="index"></reply-item>
@@ -42,7 +43,7 @@ export default {
       query: {},
       replies: [],
       loadedReplies: [],
-      pageSize: 5
+      pageSize: 10
     }
   },
   components: {
@@ -52,6 +53,9 @@ export default {
   computed: {
     created () {
       return timeTransfer(this.query.created)
+    },
+    lastTouched () {
+      return new Date(this.query.last_touched * 1000).toLocaleString()
     }
   },
   mounted () {
@@ -71,9 +75,11 @@ export default {
   methods: {
     async getTopicDetail (id) {
       const topic = await getTopicContent(id)
+      console.log(topic)
       this.topic = topic[0]
       const replies = await getReplies({ topic_id: id })
       this.replies = replies
+      console.log(replies)
       this.loadedReplies = replies.slice(0, this.pageSize)
     },
     async getReplies (id) {
@@ -101,9 +107,19 @@ export default {
 </script>
 
 <style scoped>
+.content {
+  overflow-x: hidden;
+}
+
 .detail {
   padding: 10px 10px;
   border-top: 1px solid #eee;
+}
+
+.title {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin: 15px 0;
 }
 
 img {
@@ -142,7 +158,9 @@ span {
 }
 
 .reply {
-  margin-left: 15px;
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 15px;
 }
 
 .comments {

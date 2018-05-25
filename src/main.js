@@ -14,11 +14,11 @@ export default {
     pages: ['^pages/index/main', 'pages/hot/main', 'pages/content/main', 'pages/nodes/main'],
     window: {
       backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#efefff',
+      navigationBarBackgroundColor: '#efefef',
       navigationBarTitleText: 'V2EX',
       navigationBarTextStyle: 'black',
       enablePullDownRefresh: true,
-      onReachBottomDistance: 100
+      onReachBottomDistance: 50
     },
     tabBar: {
       color: '#aaaaaa',

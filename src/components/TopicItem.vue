@@ -6,7 +6,7 @@
         <div class="user">
           <div>{{ topic.member.username }}</div>
           <div class="user__time">
-            <span>{{ lastModified }}</span>
+            <span>{{ lastTouched }}</span>
             <span class="reply">{{ topic.replies }} 回贴</span>
           </div>
         </div>
@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { timeTransfer } from '@/utils'
+
 export default {
   props: {
     topic: {
@@ -32,21 +34,8 @@ export default {
     }
   },
   computed: {
-    lastModified () {
-      const now = new Date()
-      const last = this.topic.last_touched
-      const diff = (now.getTime() - last * 1000) / 1000
-      if (diff < 0) {
-        return '刚刚'
-      } else if (diff < 60) {
-        return `${diff} 秒前`
-      } else if (diff < 3600) {
-        return `${Math.floor(diff / 60)} 分钟前`
-      } else if (diff < 24 * 3600) {
-        return `${Math.floor(diff / 3600)} 小时前`
-      } else {
-        return `${Math.floor(diff / (24 * 3600))} 天前`
-      }
+    lastTouched () {
+      return timeTransfer(this.topic.last_touched)
     }
   },
   methods: {
@@ -54,7 +43,9 @@ export default {
       this.$emit('on-get-topic-content',
         {
           id: this.topic.id,
+          title: this.topic.title,
           created: this.topic.created,
+          last_touched: this.topic.last_touched,
           avatar: this.topic.member.avatar_normal,
           username: this.topic.member.username,
           replies: this.topic.replies,
